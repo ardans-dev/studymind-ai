@@ -1,34 +1,78 @@
 import chromadb
 
+from app.rag.embedding import EmbeddingService
+
 
 class VectorStore:
+
     def __init__(self):
-        self.client = chromadb.PersistentClient(path="chroma")
+
+        self.client = chromadb.PersistentClient(
+            path="chroma"
+        )
 
         self.collection = self.client.get_or_create_collection(
-            name="studymind"
+            name="documents"
         )
 
-    def add_chunk(self, chunk, embedding):
+    def add_document(
+        self,
+        chunk_id: str,
+        text: str,
+        metadata: dict,
+    ):
+
+        embedding = EmbeddingService.encode(text)
+
         self.collection.add(
-            ids=[str(chunk.id)],
+
+            ids=[chunk_id],
+
             embeddings=[embedding],
-            documents=[chunk.content],
-            metadatas=[
-                {
-                    "title": chunk.title,
-                    **chunk.metadata,
-                }
-            ],
+
+            documents=[text],
+
+            metadatas=[metadata],
+
         )
 
-    def count(self):
-        return self.collection.count()
+    def add_documents(
+        self,
+        chunks,
+    ):
 
-    def search(self, embedding, top_k=5):
-        result = self.collection.query(
-            query_embeddings=[embedding],
-            n_results=top_k,
+        ids = []
+
+        documents = []
+
+        embeddings = []
+
+        metadatas = []
+
+        for chunk in chunks:
+
+            ids.append(str(chunk.id))
+
+            documents.append(chunk.content)
+
+            embeddings.append(
+
+                EmbeddingService.encode(
+                    chunk.content
+                )
+
+            )
+
+            metadatas.append(chunk.metadata)
+
+        self.collection.add(
+
+            ids=ids,
+
+            embeddings=embeddings,
+
+            documents=documents,
+
+            metadatas=metadatas,
+
         )
-
-        return result

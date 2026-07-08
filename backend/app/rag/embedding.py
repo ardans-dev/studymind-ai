@@ -1,26 +1,51 @@
-import ollama
+from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingService:
+    """
+    Mengubah teks menjadi embedding vector menggunakan
+    SentenceTransformer.
+    """
 
-    MODEL = "nomic-embed-text"
+    _model = None
 
-    @staticmethod
-    def embed(text: str):
+    @classmethod
+    def get_model(cls):
+        """
+        Load model hanya sekali (Singleton).
+        """
+        if cls._model is None:
+            print("Loading embedding model...")
+            cls._model = SentenceTransformer(
+                "all-MiniLM-L6-v2"
+            )
 
-        response = ollama.embed(
-            model=EmbeddingService.MODEL,
-            input=text,
+        return cls._model
+
+    @classmethod
+    def encode(cls, text: str) -> list[float]:
+        """
+        Encode satu teks menjadi vector.
+        """
+        model = cls.get_model()
+
+        embedding = model.encode(
+            text,
+            normalize_embeddings=True,
         )
 
-        return response["embeddings"][0]
+        return embedding.tolist()
 
-    @staticmethod
-    def embed_many(texts: list[str]):
+    @classmethod
+    def encode_batch(cls, texts: list[str]) -> list[list[float]]:
+        """
+        Encode banyak teks sekaligus.
+        """
+        model = cls.get_model()
 
-        response = ollama.embed(
-            model=EmbeddingService.MODEL,
-            input=texts,
+        embeddings = model.encode(
+            texts,
+            normalize_embeddings=True,
         )
 
-        return response["embeddings"]
+        return embeddings.tolist()
