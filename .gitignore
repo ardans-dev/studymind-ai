@@ -1,0 +1,46 @@
+# ======================
+# Python
+# ======================
+
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+
+# Database
+backend/studymind.db
+
+# Upload
+backend/uploads/
+
+# ChromaDB
+backend/chroma/
+
+# Workspace JSON
+backend/workspaces/
+
+# ======================
+# Node
+# ======================
+
+frontend/node_modules/
+frontend/dist/
+
+# ======================
+# VSCode
+# ======================
+
+.vscode/
+
+# ======================
+# OS
+# ======================
+
+.DS_Store
+Thumbs.db
+
+# ======================
+# Logs
+# ======================
+
+*.log
