@@ -27,19 +27,19 @@ class ChatService:
 
         sources = []
 
-        for chunk in chunks:
+        for item in chunks:
+
             sources.append(
                 {
-                    "title": chunk.metadata.get("title"),
-                    "type": chunk.metadata.get("type"),
-                    "pages": chunk.metadata.get("pages"),
-                    "chunk_index": chunk.metadata.get("chunk_index"),
-                    "score": chunk.score,
+                    "title": item.metadata.get("title"),
+                    "type": item.metadata.get("type"),
+                    "pages": item.metadata.get("pages"),
+                    "chunk_index": item.metadata.get("chunk_index"),
+                    "score": item.score,
                 }
             )
 
         return {
             "answer": answer,
-            "chunks": len(chunks),
             "sources": sources,
         }

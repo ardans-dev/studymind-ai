@@ -9,10 +9,24 @@ class ContextBuilder:
 
         contexts = []
 
-        for i, chunk in enumerate(chunks, start=1):
-            contexts.append(f"""[Dokumen {i}]
+        for chunk in chunks:
 
+            title = chunk.metadata.get("title", "Unknown")
+            doc_type = chunk.metadata.get("type", "Unknown")
+            chunk_index = chunk.metadata.get("chunk_index", "-")
+
+            contexts.append(
+                f"""
+========================================
+
+Nama Dokumen : {title}
+Jenis Dokumen: {doc_type.upper()}
+Chunk        : {chunk_index}
+Relevansi    : {chunk.score:.3f}
+
+Isi:
 {chunk.content}
-""")
+"""
+            )
 
-        return "\n-------------------------\n".join(contexts)
+        return "\n".join(contexts)
