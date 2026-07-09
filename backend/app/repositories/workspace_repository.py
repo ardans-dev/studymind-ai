@@ -4,7 +4,6 @@ from app.database.models import WorkspaceDB
 
 
 class WorkspaceRepository:
-
     @staticmethod
     def create(db: Session, name: str):
 

@@ -10,14 +10,9 @@ class ContextBuilder:
         contexts = []
 
         for i, chunk in enumerate(chunks, start=1):
-
-            contexts.append(
-
-                f"""[Dokumen {i}]
+            contexts.append(f"""[Dokumen {i}]
 
 {chunk.content}
-"""
-
-            )
+""")
 
         return "\n-------------------------\n".join(contexts)

@@ -8,7 +8,6 @@ from app.api.upload import router as upload_router
 from app.api.chat import router as chat_router
 from app.api.workspace import router as workspace_router
 
-from app.database import models
 from app.api.document import router as document_router
 
 app = FastAPI()

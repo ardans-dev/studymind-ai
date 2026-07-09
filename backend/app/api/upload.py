@@ -7,9 +7,7 @@ from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.services.ingestion_service import IngestionService
 
-router = APIRouter(
-    tags=["Upload"]
-)
+router = APIRouter(tags=["Upload"])
 
 UPLOAD_FOLDER = Path("uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)

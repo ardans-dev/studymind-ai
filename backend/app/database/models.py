@@ -6,22 +6,12 @@ from app.database.base import Base
 
 
 class WorkspaceDB(Base):
-
     __tablename__ = "workspaces"
 
-    id = Column(
-        String,
-        primary_key=True,
-        default=lambda: str(uuid4())
-    )
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
 
-    name = Column(
-        String,
-        nullable=False
-    )
+    name = Column(String, nullable=False)
 
     documents = relationship(
-        "DocumentDB",
-        back_populates="workspace",
-        cascade="all, delete-orphan"
+        "DocumentDB", back_populates="workspace", cascade="all, delete-orphan"
     )

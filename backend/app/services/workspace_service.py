@@ -4,7 +4,6 @@ from app.repositories.workspace_repository import WorkspaceRepository
 
 
 class WorkspaceService:
-
     @staticmethod
     def create(db: Session, name: str):
 

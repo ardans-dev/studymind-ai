@@ -3,9 +3,7 @@ from pydantic import BaseModel
 
 from app.services.chat_service import ChatService
 
-router = APIRouter(
-    tags=["Chat"]
-)
+router = APIRouter(tags=["Chat"])
 
 
 class ChatRequest(BaseModel):

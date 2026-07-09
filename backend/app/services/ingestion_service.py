@@ -7,7 +7,6 @@ from app.services.document_db_service import DocumentDBService
 
 
 class IngestionService:
-
     @staticmethod
     def ingest(
         db: Session,
@@ -17,13 +16,9 @@ class IngestionService:
 
         document, chunks = DocumentService.process(filepath)
 
-        vector_store = VectorStore(
-            workspace_id
-        )
+        vector_store = VectorStore(workspace_id)
 
-        vector_store.add_documents(
-            chunks
-        )
+        vector_store.add_documents(chunks)
 
         DocumentDBService.create(
             db=db,
@@ -31,10 +26,7 @@ class IngestionService:
             title=document.title,
             path=filepath,
             filetype=document.metadata["type"],
-            pages=document.metadata.get(
-                "pages",
-                0
-            ),
+            pages=document.metadata.get("pages", 0),
         )
 
         return {

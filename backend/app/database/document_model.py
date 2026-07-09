@@ -7,20 +7,11 @@ from app.database.base import Base
 
 
 class DocumentDB(Base):
-
     __tablename__ = "documents"
 
-    id = Column(
-        String,
-        primary_key=True,
-        default=lambda: str(uuid4())
-    )
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
 
-    workspace_id = Column(
-        String,
-        ForeignKey("workspaces.id"),
-        nullable=False
-    )
+    workspace_id = Column(String, ForeignKey("workspaces.id"), nullable=False)
 
     title = Column(String)
 
@@ -30,7 +21,4 @@ class DocumentDB(Base):
 
     pages = Column(Integer)
 
-    workspace = relationship(
-        "WorkspaceDB",
-        back_populates="documents"
-    )
+    workspace = relationship("WorkspaceDB", back_populates="documents")

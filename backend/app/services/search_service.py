@@ -2,7 +2,6 @@ from app.rag.retriever import Retriever
 
 
 class SearchService:
-
     @staticmethod
     def search(
         workspace_id: str,

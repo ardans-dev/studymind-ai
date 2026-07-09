@@ -15,10 +15,7 @@ class EmbeddingService:
         Load model hanya sekali (Singleton).
         """
         if cls._model is None:
-            print("Loading embedding model...")
-            cls._model = SentenceTransformer(
-                "all-MiniLM-L6-v2"
-            )
+            cls._model = SentenceTransformer("all-MiniLM-L6-v2")
 
         return cls._model
 

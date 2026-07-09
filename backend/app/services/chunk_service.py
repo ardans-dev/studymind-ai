@@ -3,7 +3,6 @@ from app.rag.chunker import SemanticChunker
 
 
 class ChunkService:
-
     @staticmethod
     def create_chunks(document: Document):
 

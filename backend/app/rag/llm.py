@@ -12,9 +12,7 @@ class LLM:
     def chat(prompt: str) -> str:
 
         response = ollama.chat(
-
             model=LLM.MODEL,
-
             messages=[
                 {
                     "role": "user",

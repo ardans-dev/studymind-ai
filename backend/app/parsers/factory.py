@@ -4,7 +4,6 @@ from app.parsers.pdf_parser import PDFParser
 
 
 class ParserFactory:
-
     @staticmethod
     def get(filepath):
 

@@ -6,7 +6,6 @@ from app.services.chunk_service import ChunkService
 
 
 class DocumentService:
-
     @staticmethod
     def parse(filepath: str) -> Document:
         parser = ParserFactory.get(filepath)

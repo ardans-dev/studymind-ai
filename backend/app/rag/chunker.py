@@ -5,7 +5,6 @@ from app.models.chunk import Chunk
 
 
 class SemanticChunker:
-
     @staticmethod
     def split(document: Document):
 
@@ -26,7 +25,6 @@ class SemanticChunker:
         chunks = []
 
         for i, text in enumerate(texts):
-
             metadata = document.metadata.copy()
 
             metadata["title"] = document.title

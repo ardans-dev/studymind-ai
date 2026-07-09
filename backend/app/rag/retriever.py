@@ -17,7 +17,6 @@ class SearchResult:
 
 
 class Retriever:
-
     @staticmethod
     def search(
         workspace_id: str,
@@ -54,22 +53,14 @@ class Retriever:
             metadatas,
             distances,
         ):
-
             score = 1 / (1 + distance)
 
             output.append(
-
                 SearchResult(
-
                     content=doc,
-
                     score=round(score, 4),
-
                     metadata=meta,
-
                 )
-
             )
 
         return output
-        

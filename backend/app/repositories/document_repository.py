@@ -4,7 +4,6 @@ from app.database.document_model import DocumentDB
 
 
 class DocumentRepository:
-
     @staticmethod
     def create(
         db: Session,
@@ -35,7 +34,5 @@ class DocumentRepository:
         workspace_id: str,
     ):
         return (
-            db.query(DocumentDB)
-            .filter(DocumentDB.workspace_id == workspace_id)
-            .all()
+            db.query(DocumentDB).filter(DocumentDB.workspace_id == workspace_id).all()
         )
