@@ -2,6 +2,11 @@ from app.rag.retriever import Retriever
 from app.rag.context_builder import ContextBuilder
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.llm import LLM
+from app.memory.conversation_store import ConversationStore
+from app.models.message import Message
+from app.rag.history_builder import HistoryBuilder
+from app.repositories.conversation_repository import ConversationRepository
+from app.database.conversation_model import ConversationDB
 
 
 class ChatService:
@@ -10,6 +15,14 @@ class ChatService:
         workspace_id: str,
         question: str,
     ):
+        
+        messages = ConversationStore.get_messages(
+            workspace_id
+        )
+
+        history = HistoryBuilder.build(
+            messages
+        )
 
         chunks = Retriever.search(
             workspace_id=workspace_id,
@@ -21,9 +34,42 @@ class ChatService:
         prompt = PromptBuilder.build(
             question=question,
             context=context,
+            history=history,
+        )
+
+        ConversationStore.add_message(
+            workspace_id,
+            Message(
+                role="user",
+                content=question,
+            ),
+        )
+
+        ConversationRepository.save(
+            ConversationDB(
+                workspace_id=workspace_id,
+                role="user",
+                content=question,
+            )
         )
 
         answer = LLM.chat(prompt)
+
+        ConversationStore.add_message(
+            workspace_id,
+            Message(
+                role="assistant",
+                content=answer,
+            ),
+        )
+
+        ConversationRepository.save(
+            ConversationDB(
+                workspace_id=workspace_id,
+                role="assistant",
+                content=answer,
+            )
+        )
 
         sources = []
 

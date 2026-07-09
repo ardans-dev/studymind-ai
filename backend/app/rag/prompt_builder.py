@@ -31,24 +31,30 @@ Gunakan hanya Nama Dokumen jika ingin menyebut sumber.
 """
 
     @staticmethod
-    def build(question: str, context: str) -> str:
+    def build(question: str,context: str,history: str,):
 
-        return f"""
+       return f"""
 {PromptBuilder.SYSTEM_PROMPT}
 
-========================
-KONTEKS
-========================
+========================================
+RIWAYAT PERCAKAPAN
+========================================
+
+{history}
+
+========================================
+KONTEKS DOKUMEN
+========================================
 
 {context}
 
-========================
-PERTANYAAN
-========================
+========================================
+PERTANYAAN TERBARU
+========================================
 
 {question}
 
-========================
+========================================
 JAWABAN
-========================
+========================================
 """
