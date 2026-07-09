@@ -29,11 +29,11 @@ class VectorStore:
 
         for chunk in chunks:
 
+            print(chunk.metadata)
+
             print("Embedding chunk:", chunk.id)
 
             embedding = EmbeddingService.encode(chunk.content)
-
-            print("Embedding length:", len(embedding))
 
             ids.append(str(chunk.id))
             documents.append(chunk.content)

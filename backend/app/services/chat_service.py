@@ -31,6 +31,7 @@ class ChatService:
             question=question,
             context=context,
         )
+
         print("=" * 50)
         print("Prompt Length :", len(prompt))
         print("=" * 50)
@@ -42,9 +43,26 @@ class ChatService:
         answer = LLM.chat(prompt)
         print("   ✓ LLM selesai")
 
-        print("5. Return")
+        print("5. Menyusun Citation...")
+
+        sources = []
+
+        for chunk in chunks:
+
+            sources.append({
+                "title": chunk.metadata.get("title"),
+                "type": chunk.metadata.get("type"),
+                "pages": chunk.metadata.get("pages"),
+                "chunk_index": chunk.metadata.get("chunk_index"),
+                "score": chunk.score,
+            })
+
+        print("   ✓ Citation selesai")
+
+        print("6. Return")
 
         return {
             "answer": answer,
             "chunks": len(chunks),
+            "sources": sources,
         }

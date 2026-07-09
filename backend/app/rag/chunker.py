@@ -27,13 +27,18 @@ class SemanticChunker:
 
         for i, text in enumerate(texts):
 
+            metadata = document.metadata.copy()
+
+            metadata["title"] = document.title
+            metadata["chunk_index"] = i + 1
+
             chunks.append(
                 Chunk(
                     id=i + 1,
                     title=document.title,
                     content=text,
-                    metadata=document.metadata,
+                    metadata=metadata,
                 )
             )
-            
+
         return chunks
