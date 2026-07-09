@@ -1,4 +1,5 @@
-from app.services.search_service import SearchService
+from app.rag.retriever import Retriever
+from app.rag.context_builder import ContextBuilder
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.llm import LLM
 
@@ -11,19 +12,39 @@ class ChatService:
         question: str,
     ):
 
-        chunks = SearchService.search(
-            workspace_id,
-            question,
-        )
+        print("=" * 60)
+        print("CHAT SERVICE")
 
+        print("1. Retriever...")
+        chunks = Retriever.search(
+            workspace_id=workspace_id,
+            query=question,
+        )
+        print("   ✓ Retriever selesai")
+
+        print("2. Context Builder...")
+        context = ContextBuilder.build(chunks)
+        print("   ✓ Context selesai")
+
+        print("3. Prompt Builder...")
         prompt = PromptBuilder.build(
-            question,
-            chunks,
+            question=question,
+            context=context,
         )
+        print("=" * 50)
+        print("Prompt Length :", len(prompt))
+        print("=" * 50)
+        print(prompt[:1000])
+        print("=" * 50)
+        print("   ✓ Prompt selesai")
 
+        print("4. LLM...")
         answer = LLM.chat(prompt)
+        print("   ✓ LLM selesai")
+
+        print("5. Return")
 
         return {
             "answer": answer,
-            "sources": chunks,
+            "chunks": len(chunks),
         }
