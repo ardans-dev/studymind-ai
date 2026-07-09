@@ -1,13 +1,15 @@
-from fastapi import APIRouter, UploadFile, File, Depends
-from sqlalchemy.orm import Session
 from pathlib import Path
 import shutil
 
-from app.database.session import get_db
-from app.services.document_service import DocumentService
-from app.services.document_db_service import DocumentDBService
+from fastapi import APIRouter, Depends, File, UploadFile
+from sqlalchemy.orm import Session
 
-router = APIRouter()
+from app.database.session import get_db
+from app.services.ingestion_service import IngestionService
+
+router = APIRouter(
+    tags=["Upload"]
+)
 
 UPLOAD_FOLDER = Path("uploads")
 UPLOAD_FOLDER.mkdir(exist_ok=True)
@@ -19,22 +21,23 @@ async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
 ):
+    """
+    Upload dokumen ke workspace.
+    """
 
     filepath = UPLOAD_FOLDER / file.filename
 
     with open(filepath, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    document, chunks = DocumentService.process(str(filepath))
-
-    DocumentDBService.create(
+    result = IngestionService.ingest(
         db=db,
         workspace_id=workspace_id,
-        title=document.title,
-        path=str(filepath),
-        filetype=document.metadata["type"],
-        pages=document.metadata.get("pages", 0),
+        filepath=str(filepath),
     )
+
+    document = result["document"]
+    chunks = result["chunks"]
 
     return {
         "title": document.title,

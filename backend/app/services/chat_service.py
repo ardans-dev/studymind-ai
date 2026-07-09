@@ -5,21 +5,25 @@ from app.rag.llm import LLM
 
 class ChatService:
 
-    def __init__(self):
-        self.search = SearchService()
+    @staticmethod
+    def ask(
+        workspace_id: str,
+        question: str,
+    ):
 
-    def ask(self, question: str):
-
-        result = self.search.search(question)
+        chunks = SearchService.search(
+            workspace_id,
+            question,
+        )
 
         prompt = PromptBuilder.build(
             question,
-            result,
+            chunks,
         )
 
         answer = LLM.chat(prompt)
 
         return {
             "answer": answer,
-            "sources": result["metadatas"][0],
+            "sources": chunks,
         }

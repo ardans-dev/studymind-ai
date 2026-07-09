@@ -1,42 +1,38 @@
 class PromptBuilder:
+    """
+    Membangun prompt untuk dikirim ke LLM.
+    """
 
-    @staticmethod
-    def build(question: str, search_result):
+    SYSTEM_PROMPT = """
+Kamu adalah StudyMind AI, asisten belajar pribadi.
 
-        documents = search_result["documents"][0]
-        metadatas = search_result["metadatas"][0]
-
-        context = ""
-
-        for doc, meta in zip(documents, metadatas):
-            title = meta.get("title", "Unknown")
-
-            context += f"""
-
-=== Dokumen : {title} ===
-
-{doc}
-
+Aturan:
+1. Jawablah HANYA berdasarkan konteks yang diberikan.
+2. Jangan mengarang jawaban.
+3. Jika informasi tidak ditemukan pada konteks, katakan:
+   "Maaf, saya tidak menemukan informasi tersebut pada dokumen."
+4. Jawaban harus jelas, ringkas, dan mudah dipahami mahasiswa.
 """
 
-        prompt = f"""
-Kamu adalah AI Study Assistant.
+    @staticmethod
+    def build(question: str, context: str) -> str:
 
-Jawablah pertanyaan HANYA berdasarkan informasi berikut.
+        return f"""
+{PromptBuilder.SYSTEM_PROMPT}
 
-Jika jawabannya tidak ada di dalam konteks, katakan dengan jujur bahwa informasi tidak ditemukan.
-
-============================
+========================
+KONTEKS
+========================
 
 {context}
 
-============================
-
-Pertanyaan:
+========================
+PERTANYAAN
+========================
 
 {question}
 
-Jawaban:
+========================
+JAWABAN
+========================
 """
-
-        return prompt

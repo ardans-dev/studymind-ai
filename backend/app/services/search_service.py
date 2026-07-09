@@ -1,19 +1,14 @@
-from app.rag.embedding import EmbeddingService
-from app.rag.vector_store import VectorStore
+from app.rag.retriever import Retriever
 
 
 class SearchService:
 
-    def __init__(self):
-        self.vector_store = VectorStore()
-
-    def search(self, question: str):
-
-        embedding = EmbeddingService.embed(question)
-
-        result = self.vector_store.search(
-            embedding=embedding,
-            top_k=5,
+    @staticmethod
+    def search(
+        workspace_id: str,
+        question: str,
+    ):
+        return Retriever.search(
+            workspace_id=workspace_id,
+            query=question,
         )
-
-        return result

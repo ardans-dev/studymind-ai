@@ -1,22 +1,43 @@
-from app.rag.embedding import EmbeddingService
+from sqlalchemy.orm import Session
+
 from app.rag.vector_store import VectorStore
+
+from app.services.document_service import DocumentService
+from app.services.document_db_service import DocumentDBService
 
 
 class IngestionService:
 
-    def __init__(self):
-        self.vector_store = VectorStore()
+    @staticmethod
+    def ingest(
+        db: Session,
+        workspace_id: str,
+        filepath: str,
+    ):
 
-    def ingest(self, chunks):
+        document, chunks = DocumentService.process(filepath)
 
-        embeddings = EmbeddingService.embed_many(
-            [chunk.content for chunk in chunks]
+        vector_store = VectorStore(
+            workspace_id
         )
 
-        for chunk, embedding in zip(chunks, embeddings):
-            self.vector_store.add_chunk(
-                chunk,
-                embedding,
-            )
+        vector_store.add_documents(
+            chunks
+        )
 
-        return self.vector_store.count()
+        DocumentDBService.create(
+            db=db,
+            workspace_id=workspace_id,
+            title=document.title,
+            path=filepath,
+            filetype=document.metadata["type"],
+            pages=document.metadata.get(
+                "pages",
+                0
+            ),
+        )
+
+        return {
+            "document": document,
+            "chunks": chunks,
+        }
