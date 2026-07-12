@@ -1,32 +1,51 @@
 from sentence_transformers import SentenceTransformer
 
+from app.core.config import settings
+from app.core.logger import logger
+
 
 class EmbeddingService:
     """
-    Mengubah teks menjadi embedding vector menggunakan
+    Service untuk menghasilkan embedding menggunakan
     SentenceTransformer.
+
+    Model hanya dimuat sekali (Singleton).
     """
 
-    _model = None
+    _model: SentenceTransformer | None = None
 
     @classmethod
-    def get_model(cls):
+    def get_model(cls) -> SentenceTransformer:
         """
-        Load model hanya sekali (Singleton).
+        Mengembalikan model embedding.
+        Model akan dimuat satu kali saat pertama digunakan.
         """
+
         if cls._model is None:
-            cls._model = SentenceTransformer("all-MiniLM-L6-v2")
+            logger.info(
+                f"Loading embedding model: {settings.EMBED_MODEL}"
+            )
+
+            cls._model = SentenceTransformer(
+                settings.EMBED_MODEL
+            )
+
+            logger.info(
+                "Embedding model loaded successfully."
+            )
 
         return cls._model
 
     @classmethod
-    def encode(cls, text: str) -> list[float]:
+    def encode(
+        cls,
+        text: str,
+    ) -> list[float]:
         """
-        Encode satu teks menjadi vector.
+        Encode satu teks menjadi embedding vector.
         """
-        model = cls.get_model()
 
-        embedding = model.encode(
+        embedding = cls.get_model().encode(
             text,
             normalize_embeddings=True,
         )
@@ -34,13 +53,15 @@ class EmbeddingService:
         return embedding.tolist()
 
     @classmethod
-    def encode_batch(cls, texts: list[str]) -> list[list[float]]:
+    def encode_batch(
+        cls,
+        texts: list[str],
+    ) -> list[list[float]]:
         """
-        Encode banyak teks sekaligus.
+        Encode banyak teks menjadi embedding vector.
         """
-        model = cls.get_model()
 
-        embeddings = model.encode(
+        embeddings = cls.get_model().encode(
             texts,
             normalize_embeddings=True,
         )

@@ -1,10 +1,11 @@
+from app.core.config import settings
 from app.models.message import Message
 
 
 class HistoryBuilder:
     """
-    Mengubah daftar Message menjadi teks
-    yang siap dimasukkan ke prompt.
+    Mengubah riwayat percakapan menjadi teks
+    dengan batas jumlah karakter.
     """
 
     @staticmethod
@@ -15,7 +16,9 @@ class HistoryBuilder:
 
         history = []
 
-        for message in messages:
+        total_chars = 0
+
+        for message in reversed(messages):
 
             role = (
                 "User"
@@ -23,8 +26,30 @@ class HistoryBuilder:
                 else "Assistant"
             )
 
-            history.append(
+            text = (
                 f"{role}: {message.content}"
             )
+
+            # Lewati jika satu pesan saja
+            # melebihi batas.
+            if len(text) > settings.MAX_HISTORY_CHARS:
+                continue
+
+            # Berhenti jika penambahan pesan
+            # berikutnya melewati batas.
+            if (
+                total_chars + len(text)
+                > settings.MAX_HISTORY_CHARS
+            ):
+                break
+
+            history.append(text)
+
+            total_chars += len(text)
+
+        history.reverse()
+
+        if not history:
+            return "Belum ada percakapan sebelumnya."
 
         return "\n".join(history)

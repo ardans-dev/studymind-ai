@@ -12,6 +12,7 @@ class DocumentRepository:
         path: str,
         filetype: str,
         pages: int,
+        chunks: int,
     ):
 
         doc = DocumentDB(
@@ -20,6 +21,7 @@ class DocumentRepository:
             path=path,
             type=filetype,
             pages=pages,
+            chunks=chunks,
         )
 
         db.add(doc)
@@ -36,3 +38,25 @@ class DocumentRepository:
         return (
             db.query(DocumentDB).filter(DocumentDB.workspace_id == workspace_id).all()
         )
+    
+    @staticmethod
+    def get_by_id(
+        db: Session,
+        document_id: str,
+    ):
+
+        return (
+            db.query(DocumentDB)
+            .filter(DocumentDB.id == document_id)
+            .first()
+        )
+
+
+    @staticmethod
+    def delete(
+        db: Session,
+        document: DocumentDB,
+    ):
+
+        db.delete(document)
+        db.commit()

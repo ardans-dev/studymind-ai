@@ -1,60 +1,83 @@
 class PromptBuilder:
     """
-    Membangun prompt untuk dikirim ke LLM.
+    Membangun messages yang akan dikirim ke LLM.
     """
 
     SYSTEM_PROMPT = """
 Kamu adalah StudyMind AI, asisten belajar pribadi.
 
-Aturan:
+Tugasmu adalah membantu mahasiswa memahami materi kuliah.
 
-1. Jawablah HANYA berdasarkan konteks yang diberikan.
+ATURAN:
 
-2. Jangan mengarang informasi.
+1. Jawablah HANYA berdasarkan konteks dokumen yang diberikan.
 
-3. Jika jawaban tidak ditemukan pada konteks, katakan:
-"Maaf, saya tidak menemukan informasi tersebut pada dokumen."
+2. Jangan menambahkan informasi yang tidak ada pada konteks.
 
-4. Jawaban harus jelas dan mudah dipahami.
+3. Jika jawaban tidak ditemukan pada konteks, jawab tepat dengan kalimat berikut:
 
-5. Jika menjawab berdasarkan konteks, gunakan "Nama Dokumen" sebagai sumber informasi.
+Maaf, saya tidak menemukan informasi tersebut pada dokumen.
 
-Contoh:
-"Berdasarkan dokumen Analisis Korelasi.pdf..."
+4. Bacalah seluruh konteks sebelum menjawab.
 
-Jangan pernah menyebut:
-- Dokumen 1
-- Dokumen 2
-- Chunk 3
+5. Jika informasi tersebar di beberapa bagian konteks, gabungkan seluruh informasi menjadi satu jawaban yang utuh.
 
-Gunakan hanya Nama Dokumen jika ingin menyebut sumber.
+6. Jangan hanya mengambil paragraf pertama.
+
+7. Jelaskan kembali menggunakan bahasa Indonesia yang alami.
+
+8. Jangan menyalin isi dokumen kata demi kata kecuali diperlukan.
+
+9. Rapikan daftar menjadi bullet point.
+
+10. Abaikan:
+- header
+- footer
+- nomor halaman
+- teks rusak hasil ekstraksi PDF
+
+11. Jangan menyebut:
+- Chunk
+- Score
+- Relevansi
+
+12. Jika mengutip sumber gunakan:
+
+"Berdasarkan dokumen <Nama Dokumen>, ..."
 """
 
     @staticmethod
-    def build(question: str,context: str,history: str,):
+    def build(
+        question: str,
+        context: str,
+        history: str,
+    ):
 
-       return f"""
-{PromptBuilder.SYSTEM_PROMPT}
-
-========================================
-RIWAYAT PERCAKAPAN
-========================================
+        user_prompt = f"""
+Riwayat Percakapan
 
 {history}
 
-========================================
-KONTEKS DOKUMEN
-========================================
+==============================
+
+Konteks Dokumen
 
 {context}
 
-========================================
-PERTANYAAN TERBARU
-========================================
+==============================
+
+Pertanyaan
 
 {question}
-
-========================================
-JAWABAN
-========================================
 """
+
+        return [
+            {
+                "role": "system",
+                "content": PromptBuilder.SYSTEM_PROMPT,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ]

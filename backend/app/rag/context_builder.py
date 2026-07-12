@@ -1,7 +1,11 @@
+from app.core.config import settings
+
+
 class ContextBuilder:
     """
     Mengubah hasil retrieval menjadi context
-    yang siap dikirim ke LLM.
+    yang siap dikirim ke LLM dengan batas
+    jumlah karakter.
     """
 
     @staticmethod
@@ -9,24 +13,33 @@ class ContextBuilder:
 
         contexts = []
 
+        total_chars = 0
+
         for chunk in chunks:
 
-            title = chunk.metadata.get("title", "Unknown")
-            doc_type = chunk.metadata.get("type", "Unknown")
-            chunk_index = chunk.metadata.get("chunk_index", "-")
+            if chunk.score < settings.MIN_SCORE:
+                continue
 
-            contexts.append(
-                f"""
+            title = chunk.metadata.get(
+                "title",
+                "Unknown",
+            )
+
+            section = f"""
 ========================================
+Nama Dokumen: {title}
 
-Nama Dokumen : {title}
-Jenis Dokumen: {doc_type.upper()}
-Chunk        : {chunk_index}
-Relevansi    : {chunk.score:.3f}
-
-Isi:
 {chunk.content}
 """
-            )
+
+            if (
+                total_chars + len(section)
+                > settings.MAX_CONTEXT_CHARS
+            ):
+                break
+
+            contexts.append(section)
+
+            total_chars += len(section)
 
         return "\n".join(contexts)

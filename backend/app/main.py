@@ -1,31 +1,40 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
-from app.database.base import Base
-from app.database.database import engine
-
-from app.api.upload import router as upload_router
 from app.api.chat import router as chat_router
-from app.api.workspace import router as workspace_router
-
 from app.api.document import router as document_router
-import app.database
-app = FastAPI()
+from app.api.summary import router as summary_router
+from app.core.logger import logger
+from app.rag.embedding import EmbeddingService
 
-Base.metadata.create_all(bind=engine)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Startup dan shutdown aplikasi.
+    """
+
+    logger.info("=" * 60)
+    logger.info("StudyMind AI Backend Starting...")
+    logger.info("Loading Embedding Model...")
+
+    EmbeddingService.get_model()
+
+    logger.info("Embedding Model Ready.")
+    logger.info("=" * 60)
+
+    yield
+
+    logger.info("StudyMind AI Backend Stopped.")
+
+
+app = FastAPI(
+    title="StudyMind AI",
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
-app.include_router(upload_router)
-app.include_router(chat_router)
-app.include_router(workspace_router)
 app.include_router(document_router)
+app.include_router(chat_router)
+app.include_router(summary_router)

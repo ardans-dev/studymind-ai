@@ -1,12 +1,15 @@
-from app.rag.retriever import Retriever
-from app.rag.context_builder import ContextBuilder
-from app.rag.prompt_builder import PromptBuilder
-from app.rag.llm import LLM
+from app.core.logger import logger
+from app.core.profiler import Profiler
+from app.database.conversation_model import ConversationDB
 from app.memory.conversation_store import ConversationStore
 from app.models.message import Message
+from app.rag.context_builder import ContextBuilder
 from app.rag.history_builder import HistoryBuilder
+from app.rag.llm import LLM
+from app.rag.prompt_builder import PromptBuilder
+from app.rag.reranker import Reranker
+from app.rag.retriever import Retriever
 from app.repositories.conversation_repository import ConversationRepository
-from app.database.conversation_model import ConversationDB
 
 
 class ChatService:
@@ -15,28 +18,91 @@ class ChatService:
         workspace_id: str,
         question: str,
     ):
-        
-        messages = ConversationStore.get_messages(
+
+        profiler = Profiler()
+
+        logger.info("=" * 60)
+        logger.info("REQUEST CHAT")
+        logger.info(f"Workspace : {workspace_id}")
+        logger.info(f"Question  : {question}")
+        logger.info("=" * 60)
+
+        # ---------- History ----------
+
+        messages_history = ConversationStore.get_messages(
             workspace_id
         )
 
         history = HistoryBuilder.build(
-            messages
+            messages_history
         )
+
+        profiler.checkpoint(
+            "History Builder"
+        )
+
+        # ---------- Retrieval ----------
 
         chunks = Retriever.search(
             workspace_id=workspace_id,
             query=question,
         )
 
-        context = ContextBuilder.build(chunks)
+        profiler.checkpoint(
+            "Retriever"
+        )
 
-        prompt = PromptBuilder.build(
+        # ---------- Reranker ----------
+
+        chunks = Reranker.rerank(
+            chunks
+        )
+
+        profiler.checkpoint(
+            "Reranker"
+        )
+
+        # ---------- Context ----------
+
+        context = ContextBuilder.build(
+            chunks
+        )
+
+        profiler.checkpoint(
+            "Context Builder"
+        )
+
+        # ---------- Prompt ----------
+
+        llm_messages = PromptBuilder.build(
             question=question,
             context=context,
             history=history,
         )
 
+        profiler.checkpoint(
+            "Prompt Builder"
+        )
+
+        total_prompt = sum(
+            len(item["content"])
+            for item in llm_messages
+        )
+
+        logger.info(
+            f"History : {len(history)} karakter"
+        )
+
+        logger.info(
+            f"Context : {len(context)} karakter"
+        )
+
+        logger.info(
+            f"Prompt  : {total_prompt} karakter"
+        )
+
+        # ---------- Simpan User ----------
+
         ConversationStore.add_message(
             workspace_id,
             Message(
@@ -53,7 +119,17 @@ class ChatService:
             )
         )
 
-        answer = LLM.chat(prompt)
+        # ---------- LLM ----------
+
+        answer = LLM.chat(
+            llm_messages
+        )
+
+        profiler.checkpoint(
+            "LLM"
+        )
+
+        # ---------- Simpan Assistant ----------
 
         ConversationStore.add_message(
             workspace_id,
@@ -70,6 +146,14 @@ class ChatService:
                 content=answer,
             )
         )
+
+        profiler.checkpoint(
+            "Save Conversation"
+        )
+
+        profiler.finish()
+
+        # ---------- Sources ----------
 
         sources = []
 

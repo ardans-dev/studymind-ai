@@ -1,7 +1,8 @@
 from app.models.message import Message
 from app.repositories.conversation_repository import ConversationRepository
+from app.core.config import settings
 
-MAX_HISTORY = 10
+settings.MAX_HISTORY = 10
 
 class ConversationStore:
     """
@@ -24,8 +25,8 @@ class ConversationStore:
 
         cls._store[workspace_id].append(message)
 
-        if len(cls._store[workspace_id]) > MAX_HISTORY:
-            cls._store[workspace_id] = cls._store[workspace_id][-MAX_HISTORY:]
+        if len(cls._store[workspace_id]) > settings.settings.MAX_HISTORY:
+            cls._store[workspace_id] = cls._store[workspace_id][-settings.MAX_HISTORY:]
 
     @classmethod
     def get_messages(
